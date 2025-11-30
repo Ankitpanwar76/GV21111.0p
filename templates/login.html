@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+  /* ---------- Animated Background (Physics, Math, Coding, Science) ---------- */
+  body {
+    background: radial-gradient(circle at top left, #0d1117, #010409);
+    overflow: hidden;
+    position: relative;
+    height: 100vh;
+  }
+
+  .symbol {
+    position: absolute;
+    font-size: 1.8rem;
+    opacity: 0.7;
+    animation: float 12s infinite ease-in-out;
+    user-select: none;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+    50% { transform: translateY(-40px) rotate(180deg); opacity: 1; }
+    100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
+  }
+
+  /* Neon Color Themes */
+  .blue { color: #58a6ff; text-shadow: 0 0 10px #58a6ff; }
+  .green { color: #3fb950; text-shadow: 0 0 10px #3fb950; }
+  .orange { color: #f0883e; text-shadow: 0 0 10px #f0883e; }
+  .purple { color: #d2a8ff; text-shadow: 0 0 10px #d2a8ff; }
+
+  /* ---------- Login Card ---------- */
+  .login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    z-index: 5;
+  }
+
+  .login-card {
+    background: rgba(22, 27, 34, 0.95);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 25px rgba(56, 139, 253, 0.2);
+    animation: fadeIn 1.2s ease-in-out;
+    transition: transform 0.3s ease;
+  }
+
+  .login-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 35px rgba(56, 139, 253, 0.4);
+  }
+
+  .login-title {
+    font-family: 'Orbitron', sans-serif;
+    color: #58a6ff;
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 8px rgba(56, 139, 253, 0.6);
+  }
+
+  label {
+    color: #c9d1d9;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  input:focus {
+    border-color: #58a6ff;
+    box-shadow: 0 0 8px rgba(56, 139, 253, 0.5);
+  }
+
+  .btn-login {
+    width: 100%;
+    background: linear-gradient(90deg, #238636, #2ea043);
+    color: #fff;
+    font-weight: bold;
+    padding: 0.8rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-login:hover {
+    background: linear-gradient(90deg, #2ea043, #3fb950);
+    box-shadow: 0 0 15px rgba(46, 160, 67, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .signup-text {
+    color: #8b949e;
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .signup-text a {
+    color: #58a6ff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .signup-text a:hover {
+    text-decoration: underline;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+
+<!-- Floating Symbols -->
+<div id="background-symbols"></div>
+
+<!-- Login Card -->
+<div class="login-wrapper">
+  <div class="login-card">
+    <h2 class="login-title">Sign in to GoalVerse 2.0</h2>
+
+    <form method="POST" class="space-y-5">
+      {{ form.hidden_tag() }}
+      
+      <div class="flex flex-col">
+        {{ form.email.label }}
+        {{ form.email(class="border border-gray-700 rounded-md bg-[#0d1117] text-gray-200 focus:ring-2 focus:ring-[#58a6ff] focus:border-[#58a6ff] px-3 py-2") }}
+      </div>
+      
+      <div class="flex flex-col">
+        {{ form.password.label }}
+        {{ form.password(class="border border-gray-700 rounded-md bg-[#0d1117] text-gray-200 focus:ring-2 focus:ring-[#58a6ff] focus:border-[#58a6ff] px-3 py-2") }}
+      </div>
+
+      {{ form.submit(class="btn-login") }}
+    </form>
+
+    <p class="signup-text">
+      New to GoalVerse 2.0? 
+      <a href="{{ url_for('auth.signup') }}">Create an account</a>
+    </p>
+  </div>
+</div>
+
+<!-- ---------- Animated JS for Symbols ---------- -->
+<script>
+  const symbols = ["⚛️", "💻", "∑", "π", "🔬", "λ", "Δ", "∞", "∫", "💡", "📘", "🧠"];
+  const container = document.getElementById("background-symbols");
+
+  for (let i = 0; i < 25; i++) {
+    const span = document.createElement("span");
+    span.classList.add("symbol");
+
+    // random symbol + color
+    span.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+    const colors = ["blue", "green", "orange", "purple"];
+    span.classList.add(colors[Math.floor(Math.random() * colors.length)]);
+
+    // random position
+    span.style.left = Math.random() * 100 + "vw";
+    span.style.top = Math.random() * 100 + "vh";
+    span.style.animationDelay = Math.random() * 8 + "s";
+    span.style.fontSize = 1 + Math.random() * 2 + "rem";
+
+    container.appendChild(span);
+  }
+</script>
+{% endblock %}

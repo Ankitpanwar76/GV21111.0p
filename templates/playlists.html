@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% block title %}Playlists{% endblock %}
+
+{% block content %}
+<style>
+  /* ---------- Animated GitHub-Inspired Background ---------- */
+  body {
+    margin: 0;
+    background: radial-gradient(circle at 25% 25%, #0d1117, #161b22);
+    overflow-x: hidden;
+    position: relative;
+    color: #c9d1d9;
+  }
+
+  .animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(-45deg, #0d1117, #161b22, #0c162d, #1b1f24);
+    background-size: 400% 400%;
+    animation: gradientMove 14s ease infinite;
+    z-index: -3;
+  }
+
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Floating glowing symbols */
+  .symbol {
+    position: absolute;
+    font-size: 2.8rem;
+    opacity: 0.2;
+    animation: floatSymbol 12s linear infinite;
+    user-select: none;
+    filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.6));
+  }
+
+  @keyframes floatSymbol {
+    0% {
+      transform: translateY(100vh) rotate(0deg) scale(1);
+      opacity: 0;
+    }
+    20% { opacity: 1; }
+    100% {
+      transform: translateY(-10vh) rotate(360deg) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  /* ---------- Page Content ---------- */
+  .page-wrapper {
+    position: relative;
+    z-index: 10;
+    padding: 3rem 2rem;
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    color: #58a6ff;
+    text-shadow: 0 0 8px rgba(88, 166, 255, 0.5);
+  }
+
+  .search-box {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: #c9d1d9;
+    transition: all 0.3s ease;
+  }
+
+  .search-box:focus {
+    border-color: #58a6ff;
+    box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+  }
+
+  .search-btn {
+    background: linear-gradient(90deg, #238636, #3fb950);
+    color: white;
+    font-weight: bold;
+    padding: 0.8rem 1.6rem;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .search-btn:hover {
+    background: linear-gradient(90deg, #3fb950, #2ea043);
+    box-shadow: 0 0 15px rgba(63, 185, 80, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .playlist-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    animation: fadeSlide 0.6s ease both;
+  }
+
+  .playlist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(88, 166, 255, 0.25);
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .playlist-thumb {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .playlist-card:hover .playlist-thumb {
+    transform: scale(1.08);
+  }
+
+  .playlist-info {
+    padding: 1rem;
+  }
+
+  .playlist-title {
+    color: #c9d1d9;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .playlist-title:hover {
+    color: #58a6ff;
+  }
+
+  .playlist-channel {
+    color: #8b949e;
+    font-size: 0.9rem;
+  }
+
+  /* Loader */
+  .loader-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    height: 250px;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Modal */
+  #videoModal {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-content {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .close-btn {
+    color: #c9d1d9;
+    font-size: 1.8rem;
+    transition: color 0.3s;
+  }
+
+  .close-btn:hover {
+    color: #f85149;
+  }
+</style>
+
+<!-- Animated Background -->
+<div class="animated-bg"></div>
+<div id="symbols"></div>
+
+<!-- Main Page -->
+<div class="page-wrapper max-w-7xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6">🎥 Explore YouTube Courses</h1>
+
+  <!-- Search -->
+  <div class="flex flex-wrap gap-4 mb-8">
+    <input id="topic" type="text" placeholder="e.g. Data Structures in Python" class="flex-1 search-box">
+    <select id="level" class="search-box">
+      <option value="basic">Basic</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+      <option value="advanced">Advanced</option>
+    </select>
+    <button onclick="searchPlaylists()" class="search-btn">Search</button>
+  </div>
+
+  <!-- Results -->
+  <div id="results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</div>
+
+<!-- Modal -->
+<div id="videoModal" class="fixed inset-0 hidden items-center justify-center z-50">
+  <div class="modal-content relative max-w-3xl w-full overflow-hidden">
+    <button onclick="closeModal()" class="absolute top-3 right-4 close-btn">&times;</button>
+    <iframe id="videoFrame" width="100%" height="400" src="" frameborder="0" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+/* Floating Symbols */
+const symbols = ['💻','⚛️','📘','🧠','📐','🧮','🔬','⚙️','📊','🧑‍💻','🔢','🛰️','📚','🧬','🌌'];
+const container = document.getElementById('symbols');
+
+for (let i = 0; i < 22; i++) {
+  const sym = document.createElement('div');
+  sym.classList.add('symbol');
+  sym.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+  sym.style.left = `${Math.random() * 100}%`;
+  sym.style.animationDuration = `${10 + Math.random() * 10}s`;
+  sym.style.fontSize = `${2.2 + Math.random() * 1.8}rem`;
+  sym.style.animationDelay = `${Math.random() * 6}s`;
+  container.appendChild(sym);
+}
+
+/* Optional parallax motion for symbols */
+document.addEventListener('mousemove', e => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 10;
+  const y = (e.clientY / window.innerHeight - 0.5) * 10;
+  container.style.transform = `translate(${x}px, ${y}px)`;
+});
+
+/* YouTube Search Functionality */
+async function searchPlaylists() {
+  const topic = document.getElementById('topic').value.trim();
+  const level = document.getElementById('level').value;
+  const resultsContainer = document.getElementById('results');
+
+  if (!topic) return alert('Please enter a topic.');
+
+  resultsContainer.innerHTML = Array(6).fill().map(() => `<div class="loader-card"></div>`).join('');
+
+  try {
+    const res = await fetch(`/youtube/search?q=${encodeURIComponent(topic)}&level=${level}`);
+    const data = await res.json();
+
+    if (data.error) {
+      resultsContainer.innerHTML = `<p class="text-red-500 text-center col-span-full">Error: ${data.error}</p>`;
+      return;
+    }
+
+    resultsContainer.innerHTML = data.map((p, i) => `
+      <div onclick="openModal('${p.id || ''}')" class="playlist-card" style="animation-delay:${i * 80}ms;">
+        <img src="${p.thumb || 'https://via.placeholder.com/300x150'}" alt="${p.title}" class="playlist-thumb">
+        <div class="playlist-info">
+          <h3 class="playlist-title">${p.title || 'Untitled Playlist'}</h3>
+          <p class="playlist-channel">${p.channel || 'Unknown Channel'}</p>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    resultsContainer.innerHTML = `<p class="text-red-500 text-center col-span-full">Failed to load results.</p>`;
+  }
+}
+
+function openModal(videoId) {
+  const modal = document.getElementById('videoModal');
+  const frame = document.getElementById('videoFrame');
+  frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeModal() {
+  const modal = document.getElementById('videoModal');
+  const frame = document.getElementById('videoFrame');
+  frame.src = '';
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+</script>
+{% endblock %}

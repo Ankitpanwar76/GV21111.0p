@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Skill Share{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gh-gray-900">Skill Share</h1>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('skillshare.upload') }}" class="btn-primary">Upload Video</a>
+    {% endif %}
+  </div>
+
+  <div class="space-y-6">
+    {% for p in posts %}
+      <div class="card p-5 animation-fade-in">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <h3 class="text-xl font-semibold text-gh-gray-900">{{ p.title }}</h3>
+            <p class="text-sm text-gh-gray-600">
+              by <span class="font-medium">{{ p.author.username }}</span> •
+              {{ p.created_at.strftime('%b %d, %Y') }}
+            </p>
+          </div>
+
+          {% if current_user.is_authenticated %}
+            <form action="{{ url_for('skillshare.like', post_id=p.id) }}" method="post" class="inline">
+              <button type="submit"
+                      class="flex items-center space-x-1 text-sm font-medium
+                             {% if current_user in p.likes|map(attribute='user') %} text-gh-blue {% else %} text-gh-gray-600 {% endif %}
+                             hover:text-gh-blue transition">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                        clip-rule="evenodd"/>
+                </svg>
+                <span>{{ p.likes|length }}</span>
+              </button>
+            </form>
+          {% endif %}
+        </div>
+
+        {% if p.description %}
+          <p class="mt-2 text-gh-gray-700">{{ p.description }}</p>
+        {% endif %}
+
+        <video controls class="mt-4 w-full rounded-md border border-gh-gray-200">
+          <source src="{{ url_for('static', filename='uploads/' + p.video_filename) }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    {% else %}
+      <p class="text-center text-gh-gray-600 py-12">No videos yet – be the first to share!</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

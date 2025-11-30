@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<style>
+  /* --------- Sign Up Page Styling (GitHub Inspired) --------- */
+  .signup-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    position: relative;
+    z-index: 10;
+  }
+
+  .signup-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 25px rgba(56, 139, 253, 0.2);
+    animation: fadeIn 1s ease-in-out;
+    transition: transform 0.3s ease;
+  }
+
+  .signup-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 35px rgba(46, 160, 67, 0.4);
+  }
+
+  .signup-title {
+    font-family: 'Orbitron', sans-serif;
+    color: #3fb950;
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 8px rgba(63, 185, 80, 0.6);
+  }
+
+  label {
+    color: #c9d1d9;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  input:focus {
+    border-color: #3fb950;
+    box-shadow: 0 0 8px rgba(63, 185, 80, 0.5);
+  }
+
+  .btn-signup {
+    width: 100%;
+    background: linear-gradient(90deg, #2ea043, #3fb950);
+    color: #fff;
+    font-weight: bold;
+    padding: 0.8rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-signup:hover {
+    background: linear-gradient(90deg, #3fb950, #2ea043);
+    box-shadow: 0 0 15px rgba(46, 160, 67, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .login-text {
+    color: #8b949e;
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .login-text a {
+    color: #58a6ff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .login-text a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<!-- Sign Up Form Section -->
+<div class="signup-wrapper">
+  <div class="signup-card">
+    <h2 class="signup-title">Create your GoalVerse2.0 Account</h2>
+
+    <form method="POST" class="space-y-5">
+      {{ form.hidden_tag() }}
+      
+      <div class="flex flex-col">
+        {{ form.email.label }}
+        {{ form.email(class="border border-gray-700 rounded-md bg-[#0d1117] text-gray-200 focus:ring-2 focus:ring-[#3fb950] focus:border-[#3fb950] px-3 py-2") }}
+      </div>
+
+      <div class="flex flex-col">
+        {{ form.password.label }}
+        {{ form.password(class="border border-gray-700 rounded-md bg-[#0d1117] text-gray-200 focus:ring-2 focus:ring-[#3fb950] focus:border-[#3fb950] px-3 py-2") }}
+      </div>
+
+      <div class="flex flex-col">
+        {{ form.confirm.label }}
+        {{ form.confirm(class="border border-gray-700 rounded-md bg-[#0d1117] text-gray-200 focus:ring-2 focus:ring-[#3fb950] focus:border-[#3fb950] px-3 py-2") }}
+      </div>
+
+      {{ form.submit(class="btn-signup") }}
+    </form>
+
+    <p class="login-text">
+      Already have an account? 
+      <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

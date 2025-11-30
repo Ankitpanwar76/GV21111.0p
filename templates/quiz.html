@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block title %}Quiz{% endblock %}
+{% block content %}
+<style>
+  /* -------------------- Animated Dark Gradient Background -------------------- */
+  body {
+    background: radial-gradient(circle at 20% 20%, #0d1117, #161b22, #0c0f13);
+    background-size: 400% 400%;
+    animation: bgFlow 10s ease infinite;
+    color: #f0f6fc;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  @keyframes bgFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* -------------------- Floating Symbols -------------------- */
+  .floating-symbol {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.25;
+    color: #58a6ff;
+    animation: float 8s infinite ease-in-out;
+    filter: drop-shadow(0 0 8px rgba(88,166,255,0.5));
+    z-index: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+    50% { transform: translateY(-30px) rotate(20deg); opacity: 0.7; }
+    100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+  }
+
+  .symbol-green { color: #3fb950; animation-duration: 10s; }
+  .symbol-yellow { color: #f1e05a; animation-duration: 12s; }
+  .symbol-pink { color: #ff7b72; animation-duration: 9s; }
+
+  /* -------------------- Animations -------------------- */
+  @keyframes slideIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes glowPulse {
+    0% { box-shadow: 0 0 10px #23863644; }
+    50% { box-shadow: 0 0 25px #23863688; }
+    100% { box-shadow: 0 0 10px #23863644; }
+  }
+
+  /* -------------------- UI Styles -------------------- */
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: slideIn 0.6s ease forwards;
+    position: relative;
+    z-index: 10;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(35, 134, 54, 0.3);
+  }
+
+  .input {
+    background: #0d1117;
+    color: #f0f6fc;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    transition: 0.3s ease;
+  }
+  .input:focus {
+    outline: none;
+    border-color: #238636;
+    box-shadow: 0 0 8px #238636aa;
+  }
+
+  .btn {
+    background-color: #238636;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn:hover {
+    background-color: #2ea043;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px #23863688;
+  }
+
+  .question {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #f0f6fc;
+  }
+
+  label {
+    display: block;
+    color: #c9d1d9;
+    margin: 6px 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+  label:hover {
+    background-color: #21262d;
+    border-color: #30363d;
+  }
+  input[type="radio"] {
+    accent-color: #238636;
+    margin-right: 8px;
+  }
+
+  .score-box {
+    background-color: #161b22;
+    border: 1px solid #238636;
+    color: #f0f6fc;
+    padding: 20px;
+    border-radius: 10px;
+    animation: glowPulse 2s infinite ease-in-out;
+  }
+
+  .error-box {
+    background-color: #161b22;
+    border: 1px solid #f85149;
+    color: #f85149;
+    padding: 16px;
+    border-radius: 10px;
+    animation: slideIn 0.5s ease;
+  }
+</style>
+
+<!-- Floating Animated Symbols -->
+<div class="floating-symbol symbol-green" style="top:10%; left:5%;">💻</div>
+<div class="floating-symbol symbol-yellow" style="top:15%; right:10%;">⚛️</div>
+<div class="floating-symbol symbol-pink" style="bottom:20%; left:8%;">🧮</div>
+<div class="floating-symbol symbol-green" style="bottom:10%; right:15%;">📘</div>
+<div class="floating-symbol symbol-yellow" style="top:40%; left:45%;">🧠</div>
+<div class="floating-symbol symbol-pink" style="top:70%; right:5%;">🔢</div>
+
+<!-- Main Quiz UI -->
+<div class="max-w-5xl mx-auto p-8 relative z-10">
+  <h1 class="text-4xl font-bold text-center mb-10" style="color:#58a6ff; animation: slideIn 1s ease;">⚡ Interactive Quiz Portal</h1>
+
+  <div class="flex gap-4 mb-8 justify-center" style="animation: slideIn 1s ease;">
+    <input id="quizTopic" type="text" placeholder="Enter topic (e.g., Python, Physics, Math)" class="input w-1/2">
+    <input id="quizNum" type="number" value="5" min="1" max="10" class="input w-24 text-center">
+    <button onclick="generateQuiz()" class="btn">Generate</button>
+  </div>
+
+  <div id="quizContainer" class="space-y-6"></div>
+
+  <div class="text-center mt-6">
+    <button id="submitQuiz" onclick="submitQuiz()" class="btn hidden">Submit Quiz</button>
+  </div>
+</div>
+
+<script>
+let currentQuiz = [];
+
+async function generateQuiz() {
+  const topic = document.getElementById('quizTopic').value.trim();
+  const num = parseInt(document.getElementById('quizNum').value);
+  const container = document.getElementById('quizContainer');
+  const submitBtn = document.getElementById('submitQuiz');
+
+  if (!topic) return alert('Please enter a topic!');
+  if (num < 1 || num > 10) return alert('Please select between 1 and 10 questions.');
+
+  container.innerHTML = `<p class="text-center text-gray-400">⏳ Generating quiz for "${topic}"...</p>`;
+  submitBtn.classList.add('hidden');
+
+  try {
+    const res = await fetch('/gemini/generate-quiz', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ topic, num })
+    });
+    currentQuiz = await res.json();
+
+    if (currentQuiz.error) {
+      container.innerHTML = `<div class="error-box">${currentQuiz.error}</div>`;
+      return;
+    }
+
+    container.innerHTML = '';
+    currentQuiz.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = `${i * 100}ms`;
+      card.innerHTML = `
+        <p class="question">${i + 1}. ${q.question}</p>
+        ${q.options.map(opt => `
+          <label><input type="radio" name="q${i}" value="${opt.charAt(0)}"> ${opt}</label>
+        `).join('')}
+      `;
+      container.appendChild(card);
+    });
+
+    submitBtn.classList.remove('hidden');
+  } catch {
+    container.innerHTML = `<div class="error-box">❌ Error while generating the quiz. Try again.</div>`;
+  }
+}
+
+async function submitQuiz() {
+  const answers = {};
+  const container = document.getElementById('quizContainer');
+  const submitBtn = document.getElementById('submitQuiz');
+
+  currentQuiz.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    if (selected) answers[q.question] = selected.value;
+  });
+
+  if (Object.keys(answers).length === 0) {
+    alert('Please select at least one answer!');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch('/gemini/submit-quiz', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ answers })
+    });
+    const result = await res.json();
+
+    if (result.error) {
+      container.innerHTML = `<div class="error-box">${result.error}</div>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="score-box text-center text-lg">✅ Your Score: ${result.score}/${result.total}</div>`;
+    submitBtn.classList.add('hidden');
+  } catch {
+    container.innerHTML = `<div class="error-box">❌ Something went wrong while submitting.</div>`;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Quiz';
+  }
+}
+</script>
+{% endblock %}

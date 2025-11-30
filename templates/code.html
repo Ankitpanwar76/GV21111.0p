@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}Code Lab{% endblock %}
+{% block content %}
+<style>
+  /* -------------------- GitHub Dark Theme Background -------------------- */
+  body {
+    background: linear-gradient(135deg, #0d1117, #161b22, #0c0f13);
+    background-size: 400% 400%;
+    animation: bgFlow 10s ease infinite;
+    color: #f0f6fc;
+    font-family: 'Inter', sans-serif;
+  }
+
+  @keyframes bgFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* -------------------- Animations -------------------- */
+  @keyframes slideIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 8px #2dd4bf33; }
+    50% { box-shadow: 0 0 16px #2dd4bf88; }
+    100% { box-shadow: 0 0 8px #2dd4bf33; }
+  }
+
+  /* -------------------- Input + Button -------------------- */
+  .input {
+    background: #0d1117;
+    color: #f0f6fc;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  .input:focus {
+    outline: none;
+    border-color: #2dd4bf;
+    box-shadow: 0 0 8px #2dd4bf99;
+  }
+
+  .btn {
+    background-color: #238636;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn:hover {
+    background-color: #2ea043;
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px #238636aa;
+  }
+
+  /* -------------------- Code Box + Output -------------------- */
+  textarea {
+    font-family: 'Fira Code', monospace;
+    background: #0d1117;
+    color: #f0f6fc;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 14px;
+    resize: none;
+    width: 100%;
+    height: 320px;
+    transition: all 0.3s ease;
+  }
+  textarea:focus {
+    border-color: #2dd4bf;
+    box-shadow: 0 0 8px #2dd4bf88;
+  }
+
+  #output {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 16px;
+    color: #58a6ff;
+    font-family: 'Fira Code', monospace;
+    overflow-y: auto;
+    height: 320px;
+    transition: all 0.3s ease;
+  }
+
+  #output.error {
+    color: #f85149;
+    border-color: #f85149aa;
+  }
+
+  /* -------------------- Headings -------------------- */
+  h1 {
+    color: #58a6ff;
+    animation: slideIn 0.8s ease;
+  }
+  h3 {
+    color: #f0f6fc;
+  }
+</style>
+
+<div class="max-w-6xl mx-auto p-8">
+  <h1 class="text-4xl font-bold mb-10 text-center">💻 Code Lab</h1>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Code Input Section -->
+    <div style="animation: slideIn 0.6s ease;">
+      <select id="lang" class="input mb-4">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="java">Java</option>
+        <option value="c">C</option>
+        <option value="cpp">C++</option>
+      </select>
+
+      <textarea id="code" placeholder="# Write your code here...">print("Hello, World!")</textarea>
+
+      <button onclick="runCode()" class="btn mt-5">
+        <span id="runText">▶ Run</span>
+        <svg id="runSpinner" class="hidden animate-spin h-5 w-5 ml-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 100 8v4a8 8 0 01-8-8z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Output Section -->
+    <div style="animation: slideIn 0.8s ease;">
+      <h3 class="text-xl font-semibold mb-3">🧾 Output</h3>
+      <pre id="output" aria-live="polite"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+async function runCode() {
+  const code = document.getElementById('code').value;
+  const lang = document.getElementById('lang').value;
+  const output = document.getElementById('output');
+  const runText = document.getElementById('runText');
+  const runSpinner = document.getElementById('runSpinner');
+
+  // Reset output + start loading
+  output.textContent = '';
+  output.classList.remove('error');
+  output.style.animation = 'pulseGlow 1.5s infinite';
+  runText.classList.add('hidden');
+  runSpinner.classList.remove('hidden');
+
+  try {
+    const res = await fetch('/code/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, lang })
+    });
+    const data = await res.json();
+
+    output.style.animation = '';
+    if (data.error) {
+      output.textContent = data.error;
+      output.classList.add('error');
+    } else {
+      output.textContent = data.output || '✅ Code executed successfully!';
+      output.classList.remove('error');
+    }
+  } catch {
+    output.textContent = '❌ An error occurred while running the code.';
+    output.classList.add('error');
+  } finally {
+    runText.classList.remove('hidden');
+    runSpinner.classList.add('hidden');
+    output.style.animation = '';
+  }
+}
+</script>
+{% endblock %}

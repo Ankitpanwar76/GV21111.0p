@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Documentation{% endblock %}
+{% block content %}
+
+<style>
+  /* ----------------- Animated Background ----------------- */
+  body {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(-45deg, #0d1117, #161b22, #1f2937, #0d1117);
+    background-size: 600% 600%;
+    animation: gradientShift 14s ease infinite;
+    color: #e6edf3;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ---------------- Floating Glowing Symbols ---------------- */
+  .floating-symbol {
+    position: absolute;
+    font-size: 2.5rem;
+    opacity: 0.15;
+    color: #58a6ff;
+    animation: floatSymbol 20s linear infinite;
+  }
+
+  @keyframes floatSymbol {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
+    50% { transform: translateY(-40px) rotate(180deg); opacity: 0.35; }
+    100% { transform: translateY(0) rotate(360deg); opacity: 0.2; }
+  }
+
+  /* Different random positions */
+  .symbol1 { top: 10%; left: 15%; animation-delay: 0s; color: #3fb950; }
+  .symbol2 { top: 30%; right: 20%; animation-delay: 3s; color: #58a6ff; }
+  .symbol3 { bottom: 25%; left: 10%; animation-delay: 6s; color: #f85149; }
+  .symbol4 { bottom: 10%; right: 15%; animation-delay: 9s; color: #c9d1d9; }
+  .symbol5 { top: 50%; left: 45%; animation-delay: 12s; color: #ffa657; }
+
+  /* ---------------- Custom Animations ---------------- */
+  @keyframes slideIn {
+    0% { opacity: 0; transform: translateY(15px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulseGlow {
+    0% { background-color: #1f2937; }
+    50% { background-color: #374151; }
+    100% { background-color: #1f2937; }
+  }
+
+  /* ---------------- Input & Button Styling ---------------- */
+  .input-focus {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    transition: all 0.3s ease-in-out;
+    border-radius: 10px;
+  }
+
+  .input-focus:focus {
+    border-color: #58a6ff;
+    box-shadow: 0 0 10px rgba(88, 166, 255, 0.4);
+    outline: none;
+  }
+
+  .btn-animate {
+    background: linear-gradient(90deg, #238636, #2ea043);
+    color: white;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+  }
+
+  .btn-animate:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(90deg, #2ea043, #3fb950);
+    box-shadow: 0 0 15px rgba(35, 134, 54, 0.5);
+  }
+
+  /* ---------------- Output Box ---------------- */
+  .output-box {
+    background: rgba(22, 27, 34, 0.9);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 0 25px rgba(88, 166, 255, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .output-box pre {
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+</style>
+
+<!-- Floating Symbols Layer -->
+<div class="floating-symbol symbol1">⚙️</div>
+<div class="floating-symbol symbol2">💻</div>
+<div class="floating-symbol symbol3">📘</div>
+<div class="floating-symbol symbol4">✨</div>
+<div class="floating-symbol symbol5">🔮</div>
+
+<!-- Main Container -->
+<div class="max-w-6xl mx-auto p-8 relative z-10 animate-[slideIn_0.6s_ease-out]">
+  <h1 class="text-4xl font-bold mb-8 text-center text-green-400 drop-shadow-[0_0_12px_#2ea043]">
+    📗 Ask for Documentation
+  </h1>
+
+  <!-- Input and Button -->
+  <div class="flex flex-col sm:flex-row gap-4 mb-10 justify-center">
+    <input id="docTopic" 
+      type="text" 
+      placeholder="e.g., Django ORM, Flask Blueprints, React Hooks..."
+      class="flex-1 p-3 rounded-xl input-focus text-base">
+    <button onclick="getDocs()" 
+      class="btn-animate px-6 py-3 font-semibold shadow-md">
+      ⚡ Generate
+    </button>
+  </div>
+
+  <!-- Output Box -->
+  <div id="docOutput" class="output-box min-h-[400px]">
+    <!-- Skeleton Loader -->
+    <div id="skeletonLoader" class="space-y-4">
+      <div class="h-8 rounded w-3/4 animate-[pulseGlow_1.5s_infinite]"></div>
+      <div class="h-4 rounded w-full animate-[pulseGlow_1.5s_infinite]" style="animation-delay:150ms;"></div>
+      <div class="h-4 rounded w-5/6 animate-[pulseGlow_1.5s_infinite]" style="animation-delay:300ms;"></div>
+      <div class="h-4 rounded w-2/3 animate-[pulseGlow_1.5s_infinite]" style="animation-delay:450ms;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function getDocs() {
+  const topic = document.getElementById("docTopic").value.trim();
+  const output = document.getElementById("docOutput");
+
+  if (!topic) {
+    alert("Please enter a topic to generate documentation.");
+    return;
+  }
+
+  // Skeleton Loader while waiting
+  output.innerHTML = `
+    <div class="space-y-4">
+      <div class="h-8 rounded w-3/4 animate-[pulseGlow_1.5s_infinite]"></div>
+      <div class="h-4 rounded w-full animate-[pulseGlow_1.5s_infinite]" style="animation-delay:150ms;"></div>
+      <div class="h-4 rounded w-5/6 animate-[pulseGlow_1.5s_infinite]" style="animation-delay:300ms;"></div>
+      <div class="h-4 rounded w-2/3 animate-[pulseGlow_1.5s_infinite]" style="animation-delay:450ms;"></div>
+    </div>
+  `;
+
+  try {
+    const res = await fetch("/gemini/generate-docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      output.innerHTML = `<p class="text-red-500 text-center">${data.error}</p>`;
+      return;
+    }
+
+    // Convert Markdown to formatted HTML
+    const html = data.markdown
+      .replace(/^### (.*$)/gm, `<h3 class='text-xl font-semibold mt-6 mb-2 text-green-400'>$1</h3>`)
+      .replace(/^## (.*$)/gm, `<h2 class='text-2xl font-bold mt-8 mb-3 text-green-500'>$1</h2>`)
+      .replace(/^# (.*$)/gm, `<h1 class='text-3xl font-bold mt-10 mb-4 text-green-400'>$1</h1>`)
+      .replace(/\*\*(.*?)\*\*/g, `<strong class='text-white'>$1</strong>`)
+      .replace(/\*(.*?)\*/g, `<em class='text-gray-300'>$1</em>`)
+      .replace(/```([\s\S]*?)```/g, `<pre><code>$1</code></pre>`)
+      .replace(/^[-*] (.*)$/gm, `<li>$1</li>`)
+      .replace(/(<li>.*<\/li>)/gs, `<ul class='list-disc ml-6'>$1</ul>`);
+
+    output.innerHTML = `<div class="animate-[slideIn_0.6s_ease-out] prose prose-invert max-w-none">${html}</div>`;
+  } catch (err) {
+    output.innerHTML = `<p class="text-red-500 text-center">⚠️ Failed to fetch documentation. Please try again later.</p>`;
+  }
+}
+</script>
+
+{% endblock %}
